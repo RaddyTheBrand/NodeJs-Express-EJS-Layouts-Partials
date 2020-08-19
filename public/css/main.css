@@ -1,0 +1,29 @@
+body {
+    background-color: #eee;
+    font-size: 26px;
+}
+
+.wrapper {
+    width: 700px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 10px;
+}
+
+
+header, footer {
+    background-color: ghostwhite;
+    padding: 20px;
+}
+
+main {
+    background-color: cornsilk;
+    padding: 20px;
+}
+
+
+.layout-sidebar {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 2fr 1fr;
+}
