@@ -4,7 +4,7 @@ CREATE TABLE if not exists public.employee (
     password varchar,
     nik varchar,
     is_atasan bool Default false,
-    is_hr bool Default false
+    is_hr bool Default false,
     PRIMARY KEY ("nik")
 );
 

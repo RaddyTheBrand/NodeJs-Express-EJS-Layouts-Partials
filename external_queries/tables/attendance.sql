@@ -2,7 +2,7 @@
 CREATE TABLE if not exists public.attendance (
     id integer DEFAULT nextval('attendance_id_seq'), 
     document_number varchar,
-    employee_nik varchar integer REFERENCES employee (nik),
+    employee_nik varchar REFERENCES employee (nik),
     datetime timestamp,
     attachment_id integer REFERENCES attachment (id),
     status varchar,

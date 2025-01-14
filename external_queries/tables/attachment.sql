@@ -2,7 +2,7 @@
 CREATE TABLE if not exists public.attachment (
     id integer DEFAULT nextval('attachment_id_seq'),
     base64_data bytea, 
-    name,
+    name varchar,
     PRIMARY KEY ("id")
 );
 
