@@ -14,6 +14,12 @@ const leaveRoutes = require('./controllers/leave/leave.routes')
 
 const { authAndOtorization } = require('./auth.middleware')
 
+app.get("/", (req, res) => {
+    res.send({
+        "message": "Hello! This is our HRIS Application APIss",
+    });
+});
+
 app.use('/hris/v1/employee', employeeRoutes)
 
 app.use(authAndOtorization)
