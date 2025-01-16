@@ -1,6 +1,7 @@
 //// criss
 const getAttendanceQuery = `
     SELECT 
+        id,
         document_number,
         employee_nik,
         TO_CHAR(datetime, 'dd/mm/yyyy HH24:MI:SS')

@@ -29,11 +29,11 @@ const getAttendance = async (req, res) => {
 const postAttachment = async (req, res) => {
 
     try {
-        const contents = fs.readFileSync(req.file.path, {encoding: 'base64'});
-        const attachmentId = await pool.query(createAttachmentQuery, [req.file.originalname, contents])
-        const result = req.file
+        const attachment = req.body.attachment
+
+        const attachmentId = await pool.query(createAttachmentQuery, ['-', attachment])
         result['id'] = attachmentId.rows[0].id
-        result['base64'] = contents
+        result['attachment'] = attachment
 
         res.json({'result': result})
     } catch (error) {
@@ -53,13 +53,14 @@ const createAttendance = async(req, res) => {
         const isAttachmentExist = await pool.query('select id from attachment where id = $1', [attachmentId])
         if (isAttachmentExist.rowCount > 0){
             const attendanceId = await pool.query(createAttendanceQuery, [nik, currentTime, 'waiting', attachmentId])
+            console.log(attendanceId.rows[0].id)
             const documentNumber = `ATT/${currentTime.getFullYear()}/${attendanceId.rows[0].id}`
             await pool.query(`UPDATE attendance set document_number = '${documentNumber}' where id = ${attendanceId.rows[0].id}`)
+            res.statusCode = 200
+            return res.json({'result': {'message': 'Absen berhasil diajukan', 'id':attendanceId.rows[0].id }})  
         } else {
             throw ('Lampiran gambar tidak valid. Mohon diajukan ulang!')    
         }
-        res.statusCode = 200
-        res.json({'result': {'message': 'Absen berhasil diajukan', 'id':attendanceId.rows[0].id }})  
     } catch (error) {
         console.log(error)
         res.statusCode = 400
@@ -77,7 +78,7 @@ const approvalAttendance = async(req, res) => {
         if (isAttendanceExist.rowCount == 0){
             throw 'Ijin tidak ditemukan'
         }
-
+        
         if (isAttendanceExist.rows[0].status !== 'waiting'){
             throw 'Tidak dapat approve / reject dokumen yang belum pending'
         }

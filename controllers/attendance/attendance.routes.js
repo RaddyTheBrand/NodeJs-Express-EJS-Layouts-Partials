@@ -9,7 +9,7 @@ const controller = require("./attendance.controller")
 router.get('/', controller.getAttendance)
 router.post('/', controller.createAttendance)
 router.patch('/', controller.approvalAttendance)
-// router.post('/upload', upload.single('file'),controller.postAttachment)
+router.post('/upload', controller.postAttachment)
 
 
 module.exports = router

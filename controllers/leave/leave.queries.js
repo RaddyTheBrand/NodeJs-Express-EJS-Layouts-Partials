@@ -1,5 +1,6 @@
 const getLeaveQuery = `
-    SELECT 
+    SELECT
+        id,
         document_number,
         employee_nik,
         TO_CHAR(start_date, 'dd/mm/yyyy') as start_date,
