@@ -1,4 +1,6 @@
 -- Table Definition
+CREATE SEQUENCE attendance_id_seq START 1;
+
 CREATE TABLE if not exists public.attendance (
     id integer DEFAULT nextval('attendance_id_seq'), 
     document_number varchar,
@@ -16,6 +18,4 @@ VALUES
 
 INSERT INTO attendance (document_number, employee_nik, datetime, status)
 VALUES
-('ATT/2024/2', '00000002', '2024-12-01 07:08:00', 'waiting_approval');
-
-CREATE SEQUENCE attendance_id_seq START 1;
+('ATT/2024/2', '00000002', '2024-12-01 07:08:00', 'waiting');

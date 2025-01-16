@@ -1,4 +1,7 @@
 -- Table Definition
+
+CREATE SEQUENCE leave_id_seq START 1;
+
 CREATE TABLE if not exists public.leave (
     id integer DEFAULT nextval('attendance_id_seq'), 
     document_number varchar,
@@ -17,5 +20,3 @@ VALUES
 INSERT INTO leave (document_number, employee_nik, start_date, end_date, type, status)
 VALUES
 ('IJIN/02', '00000001', '2024-12-01', '2024-12-01', 'ijin', 'draft');
-
-CREATE SEQUENCE leave_id_seq START 1;
