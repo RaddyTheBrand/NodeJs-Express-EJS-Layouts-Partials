@@ -15,7 +15,8 @@ const login = async (req, res) => {
         const result = {
             'isAtasan': isLoginValid.rows[0].is_atasan,
             'isHr': isLoginValid.rows[0].is_hr,
-            'nik': isLoginValid.rows[0].nik
+            'nik': isLoginValid.rows[0].nik,
+            'name': isLoginValid.rows[0].name
         }
         res.statusCode = 200
         res.json({'result': result})
