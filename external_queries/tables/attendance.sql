@@ -6,8 +6,9 @@ CREATE TABLE if not exists public.attendance (
     document_number varchar,
     employee_nik varchar REFERENCES employee (nik),
     datetime timestamp,
-    attachment_id integer REFERENCES attachment (id),
     status varchar,
+    geolocation varchar,
+    notes varchar,
     PRIMARY KEY ("id")
 );
 

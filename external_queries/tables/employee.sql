@@ -10,8 +10,8 @@ CREATE TABLE if not exists public.employee (
 
 INSERT INTO employee (name, password, nik, is_atasan, is_hr)
 VALUES
-('Dummy A', '123', 'asdasd', '22123113', True, False);
+('Alex', 'Alex1234', '22123113', True, False);
 
 INSERT INTO employee (name, password, nik, is_atasan, is_hr)
 VALUES
-('Dummy A', '123', 'asdasd', '22123114', True, False);
+('Bejo', 'Bejo1234', '22123114', True, False);

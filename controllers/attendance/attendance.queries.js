@@ -4,11 +4,26 @@ const getAttendanceQuery = `
         document_number,
         employee_nik,
         TO_CHAR(datetime, 'dd/mm/yyyy HH24:MI:SS') as datetime,
-        geolocation,
-        notes,
         initcap(status) as status
     FROM attendance where employee_nik = ANY ($1)
 `
+
+const getAttachmentQuery = `
+    select base64_data from attachment where id = $1
+`
+
+ const getAttendanceDetailQuery = `
+    SELECT 
+        id,
+        document_number,
+        employee_nik,
+        TO_CHAR(datetime, 'dd/mm/yyyy HH24:MI:SS') as datetime,
+        initcap(status) as status,
+        geolocation,
+        notes,
+        attachment_id
+    FROM attendance where id = $1
+ `
 
 const createAttendanceQuery = `
     INSERT into attendance 
@@ -22,7 +37,7 @@ const createAttachmentQuery = `
     INSERT into attachment
     (name, base64_data)
     VALUES 
-    ($1, decode($2, 'base64'))
+    ($1, $2)
     returning id
 `
 
@@ -32,5 +47,5 @@ const updateAttendanceQuery = `
 
 module.exports = {
     getAttendanceQuery, createAttendanceQuery, createAttachmentQuery, 
-    updateAttendanceQuery
+    updateAttendanceQuery, getAttachmentQuery, getAttendanceDetailQuery
 }

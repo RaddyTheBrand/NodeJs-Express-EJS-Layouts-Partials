@@ -2,8 +2,10 @@ const fs = require('node:fs');
 
 const { hrisPool: pool } = require("../../db/connection");
 const { 
-    getAttendanceQuery, createAttendanceQuery, createAttachmentQuery, updateAttendanceQuery,
-} = require("./attendance.queries")
+    getAttendanceQuery, createAttendanceQuery, createAttachmentQuery, 
+    updateAttendanceQuery, getAttendanceDetailQuery, getAttachmentQuery
+} = require("./attendance.queries");
+const { render } = require('ejs');
 
 const getAttendance = async (req, res) => {
     try {
@@ -42,6 +44,22 @@ const getAttendanceManagers = async (req, res) => {
     
 }
 
+const getAttendanceDetail = async (req, res) => {
+    try{
+        
+        const attendanceId = req.params.id
+        const rawAttendanceDetail = await pool.query(getAttendanceDetailQuery, [attendanceId])
+        const rawAttachment = await pool.query(getAttachmentQuery, [rawAttendanceDetail.rows[0].attachment_id])
+        const attendanceDetail = renderAttendanceDetail(rawAttendanceDetail.rows[0], rawAttachment.rows[0])
+        res.json({'result': attendanceDetail})
+        
+    } catch (error) {
+        console.log(error)
+        res.statusCode = 400
+        res.json({'result': error})  
+    }
+}
+
 function renderAttendances(rawAttendances){
     const attendances = []
     for (const attendance of rawAttendances){
@@ -50,12 +68,23 @@ function renderAttendances(rawAttendances){
             'DocumentNumber': attendance.document_number,
             'EmployeeNik': attendance.employee_nik,
             'Datetime': attendance.datetime,
-            'Geolocation': attendance.geolocation || '',
-            'Notes': attendance.notes || '',
             'Status': attendance.status
         })
     }
     return attendances
+}
+
+function renderAttendanceDetail(rawAttendanceDetail, attachment){
+    return {
+        'Id': rawAttendanceDetail.id,
+        'DocumentNumber': rawAttendanceDetail.document_number,
+        'EmployeeNik': rawAttendanceDetail.employee_nik,
+        'Datetime': rawAttendanceDetail.datetime,
+        'Geolocation': rawAttendanceDetail.geolocation || '',
+        'Notes': rawAttendanceDetail.notes || '',
+        'Attachment': attachment.base64_data || '',
+        'Status': rawAttendanceDetail.status
+    }
 }
 
 const createAttendance = async(req, res) => {
@@ -133,5 +162,6 @@ module.exports = {
     getAttendance,
     createAttendance,
     approvalAttendance,
-    getAttendanceManagers
+    getAttendanceManagers,
+    getAttendanceDetail
 }
