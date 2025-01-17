@@ -1,18 +1,20 @@
-//// criss
 const getAttendanceQuery = `
     SELECT 
         id,
         document_number,
         employee_nik,
-        TO_CHAR(datetime, 'dd/mm/yyyy HH24:MI:SS')
-    FROM attendance where employee_nik = ANY ($1) order by datetime desc
+        TO_CHAR(datetime, 'dd/mm/yyyy HH24:MI:SS') as datetime,
+        geolocation,
+        notes,
+        initcap(status) as status
+    FROM attendance where employee_nik = ANY ($1)
 `
 
 const createAttendanceQuery = `
     INSERT into attendance 
-    (employee_nik, datetime, status, attachment_id)
+    (employee_nik, datetime, status, attachment_id, geolocation, notes)
     VALUES
-    ($1, $2, $3, $4)
+    ($1, $2, $3, $4, $5, $6)
     returning id
 `
 

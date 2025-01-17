@@ -7,18 +7,11 @@ const {
 
 const getAttendance = async (req, res) => {
     try {
-        let attendances = []
-        if (req.is_atasan){
-            const rawNiks = await pool.query('SELECT nik from employee')
-            const allNik = []
-            rawNiks.rows.map(function(data){
-                allNik.push(data.nik)
-            })
-            attendances = await pool.query(getAttendanceQuery, [allNik])
-        } else {
-            attendances = await pool.query(getAttendanceQuery, [req.nik])
-        }
-        res.json({'result': attendances.rows})
+        let filteredQuery = getAttendanceQuery
+        filteredQuery += ' order by datetime desc'
+        const rawAttendances = await pool.query(getAttendanceQuery, [[req.nik]])
+        const attendances = renderAttendances(rawAttendances.rows)
+        res.json({'result': attendances})
     } catch (error) {
         console.log(error)
         res.statusCode = 400
@@ -26,34 +19,67 @@ const getAttendance = async (req, res) => {
     }
 }
 
-const postAttachment = async (req, res) => {
-
+const getAttendanceManagers = async (req, res) => {
     try {
-        const attachment = req.body.attachment
-
-        const attachmentId = await pool.query(createAttachmentQuery, ['-', attachment])
-        result['id'] = attachmentId.rows[0].id
-        result['attachment'] = attachment
-
-        res.json({'result': result})
+        if (!req.is_atasan){
+            throw ('Anda tidak diperbolehkan untuk akses menu ini!.')    
+        }
+        const rawNiks = await pool.query('SELECT nik from employee')
+        const allNik = []
+        rawNiks.rows.map(function(data){
+            allNik.push(data.nik)
+        })
+        let filteredQuery = getAttendanceQuery
+        filteredQuery += " and status = 'waiting' order by datetime desc"
+        const rawAttendances = await pool.query(filteredQuery, [[allNik]])
+        const attendances = renderAttendances(rawAttendances.rows)
+        res.json({'result': attendances})
     } catch (error) {
         console.log(error)
         res.statusCode = 400
         res.json({'result': error})  
-    }   
+    }
+    
+}
+
+function renderAttendances(rawAttendances){
+    const attendances = []
+    for (const attendance of rawAttendances){
+        attendances.push({
+            'Id': attendance.id,
+            'DocumentNumber': attendance.document_number,
+            'EmployeeNik': attendance.employee_nik,
+            'Datetime': attendance.datetime,
+            'Geolocation': attendance.geolocation || '',
+            'Notes': attendance.notes || '',
+            'Status': attendance.status
+        })
+    }
+    return attendances
 }
 
 const createAttendance = async(req, res) => {
 
     try {
-        const attachmentId = req.body.attachmentId || null ;
-    
+        const attachment = req.body.attachment || false
+        const geolocation = req.body.geolocation || false
+        const notes = req.body.notes || false
+
+        if (!geolocation){
+            throw ('Lokasi anda tidak valid. Mohon untuk coba ajukan absensi lagi')
+        }
+
+        if (!notes){
+            throw ('Mohon diisi notes terlebih dahulu')
+        }
+
+        const attachmentId = await pool.query(createAttachmentQuery, ['-', attachment])
+
         const currentTime = new Date()
         const nik = req.nik
-        const isAttachmentExist = await pool.query('select id from attachment where id = $1', [attachmentId])
-        if (isAttachmentExist.rowCount > 0){
-            const attendanceId = await pool.query(createAttendanceQuery, [nik, currentTime, 'waiting', attachmentId])
-            console.log(attendanceId.rows[0].id)
+
+        if (attachmentId){
+            const attendanceId = await pool.query(createAttendanceQuery, [nik, currentTime, 'waiting', attachmentId.rows[0].id, geolocation, notes])
             const documentNumber = `ATT/${currentTime.getFullYear()}/${attendanceId.rows[0].id}`
             await pool.query(`UPDATE attendance set document_number = '${documentNumber}' where id = ${attendanceId.rows[0].id}`)
             res.statusCode = 200
@@ -76,7 +102,7 @@ const approvalAttendance = async(req, res) => {
         const isAttendanceExist = await pool.query('select status from attendance where id = $1', [attendanceId])
 
         if (isAttendanceExist.rowCount == 0){
-            throw 'Ijin tidak ditemukan'
+            throw 'Absensi tidak ditemukan'
         }
         
         if (isAttendanceExist.rows[0].status !== 'waiting'){
@@ -107,5 +133,5 @@ module.exports = {
     getAttendance,
     createAttendance,
     approvalAttendance,
-    postAttachment
+    getAttendanceManagers
 }
