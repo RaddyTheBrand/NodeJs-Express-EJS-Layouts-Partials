@@ -20,7 +20,8 @@ const getLeaveDetailQuery = `
         TO_CHAR(l.start_date, 'dd/mm/yyyy') as start_date,
         TO_CHAR(l.end_date, 'dd/mm/yyyy') as end_date,
         initcap(l.type) as type,
-        initcap(l.status) as status
+        initcap(l.status) as status,
+        l.notes
     FROM leave l join employee e on l.employee_nik = e.nik where l.id = $1
 `
 

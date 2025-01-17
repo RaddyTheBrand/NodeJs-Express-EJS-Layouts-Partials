@@ -78,8 +78,9 @@ function renderLeaveDetail(rawLeaveDetail){
         'StartDate': rawLeaveDetail.start_date,
         'EndDate': rawLeaveDetail.end_date,
         'EmployeeName': rawLeaveDetail.name,
-        'Notes': rawLeaveDetail.notes,
-        'Status': rawLeaveDetail.status
+        'Notes': rawLeaveDetail.notes || '',
+        'Status': rawLeaveDetail.status,
+        'Type': rawLeaveDetail.type,
     }
 }
 
