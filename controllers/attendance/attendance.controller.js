@@ -65,6 +65,7 @@ function renderAttendances(rawAttendances){
     for (const attendance of rawAttendances){
         attendances.push({
             'Id': attendance.id,
+            'EmployeeName': attendance.name,
             'DocumentNumber': attendance.document_number,
             'EmployeeNik': attendance.employee_nik,
             'Datetime': attendance.datetime,
@@ -79,6 +80,7 @@ function renderAttendanceDetail(rawAttendanceDetail, attachment){
         'Id': rawAttendanceDetail.id,
         'DocumentNumber': rawAttendanceDetail.document_number,
         'EmployeeNik': rawAttendanceDetail.employee_nik,
+        'EmployeeName': rawAttendanceDetail.name,
         'Datetime': rawAttendanceDetail.datetime,
         'Geolocation': rawAttendanceDetail.geolocation || '',
         'Notes': rawAttendanceDetail.notes || '',

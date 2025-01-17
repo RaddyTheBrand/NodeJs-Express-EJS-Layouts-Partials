@@ -1,11 +1,13 @@
 const getAttendanceQuery = `
     SELECT 
-        id,
-        document_number,
-        employee_nik,
-        TO_CHAR(datetime, 'dd/mm/yyyy HH24:MI:SS') as datetime,
-        initcap(status) as status
-    FROM attendance where employee_nik = ANY ($1)
+        a.id,
+        e.name,
+        a.document_number,
+        a.employee_nik,
+        TO_CHAR(a.datetime, 'dd/mm/yyyy HH24:MI:SS') as datetime,
+        initcap(a.status) as status
+    FROM attendance a JOIN employee e on a.employee_nik = e.nik
+    where a.employee_nik = ANY ($1)
 `
 
 const getAttachmentQuery = `
@@ -14,15 +16,18 @@ const getAttachmentQuery = `
 
  const getAttendanceDetailQuery = `
     SELECT 
-        id,
-        document_number,
-        employee_nik,
-        TO_CHAR(datetime, 'dd/mm/yyyy HH24:MI:SS') as datetime,
-        initcap(status) as status,
-        geolocation,
-        notes,
-        attachment_id
-    FROM attendance where id = $1
+        a.id,
+        a.document_number,
+        a.employee_nik,
+        e.name,
+        TO_CHAR(a.datetime, 'dd/mm/yyyy HH24:MI:SS') as datetime,
+        initcap(a.status) as status,
+        a.geolocation,
+        a.notes,
+        a.attachment_id
+    FROM attendance a
+    JOIN employee e on a.employee_nik = e.nik 
+    where a.id = $1
  `
 
 const createAttendanceQuery = `
