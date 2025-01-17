@@ -1,30 +1,85 @@
 const { hrisPool: pool } = require("../../db/connection");
 
 const {
-    getLeaveQuery,
-    createLeaveQuery,
-    updateLeaveQuery
+    getLeaveQuery, createLeaveQuery, updateLeaveQuery,
+    getLeaveDetailQuery
 } = require('./leave.queries')
 
 const getLeave = async (req, res) => {
     try {
-        let leaves = []
-        if (req.is_atasan){
-            const rawNiks = await pool.query('SELECT nik from employee')
-            const allNik = []
-            rawNiks.rows.map(function(data){
-                allNik.push(data.nik)
-            })
-
-            leaves = await pool.query(getLeaveQuery, [allNik])
-        } else {
-            leaves = await pool.query(getLeaveQuery, [req.nik])
-        }
-        res.json({'result': leaves.rows})
+        const rawLeaves = await pool.query(getLeaveQuery, [[req.nik]])
+        const leaves = renderLeaves(rawLeaves.rows)
+        res.json({'result': leaves})
     } catch (error) {
         console.log(error)
         res.statusCode = 400
         res.json({'result': error})  
+    }
+}
+
+const getLeaveManagers = async(req, res) => {
+    try {
+        if (!req.is_atasan){
+            throw ('Anda tidak diperbolehkan untuk akses menu ini!.')    
+        }
+        const rawNiks = await pool.query('SELECT nik from employee')
+        const allNik = []
+        rawNiks.rows.map(function(data){
+            allNik.push(data.nik)
+        })
+        let filteredQuery = getLeaveQuery
+        filteredQuery += " and status = 'waiting' order by l.start_date desc"
+        const rawLeaves = await pool.query(filteredQuery, [[allNik]])
+        console.log(rawLeaves.rows)
+        const leaves = renderLeaves(rawLeaves.rows)
+        res.json({'result': leaves})
+    } catch (error) {
+        console.log(error)
+        res.statusCode = 400
+        res.json({'result': error})  
+    }
+}
+
+const getLeaveDetail = async(req, res) =>{
+    try{
+        const leaveId = req.params.id
+        const rawLeaveDetail = await pool.query(getLeaveDetailQuery, [leaveId])
+        const leaveDetail = renderLeaveDetail(rawLeaveDetail.rows[0])
+        res.json({'result': leaveDetail})
+        
+    } catch (error) {
+        console.log(error)
+        res.statusCode = 400
+        res.json({'result': error})  
+    }
+}
+
+function renderLeaves(rawLeaves){
+    const leaves = []
+    for (const leave of rawLeaves){
+        leaves.push({
+            'Id': leave.id,
+            'DocumentNumber': leave.document_number,
+            'EmployeeNik': leave.employee_nik,
+            'StartDate': leave.start_date,
+            'EndDate': leave.end_date,
+            "EmployeeName": leave.name,
+            'Status': leave.status
+        })
+    }
+    return leaves
+}
+
+function renderLeaveDetail(rawLeaveDetail){
+    return {
+        'Id': rawLeaveDetail.id,
+        'DocumentNumber': rawLeaveDetail.document_number,
+        'EmployeeNik': rawLeaveDetail.employee_nik,
+        'StartDate': rawLeaveDetail.start_date,
+        'EndDate': rawLeaveDetail.end_date,
+        'EmployeeName': rawLeaveDetail.name,
+        'Notes': rawLeaveDetail.notes,
+        'Status': rawLeaveDetail.status
     }
 }
 
@@ -109,6 +164,8 @@ const approvalLeave = async (req , res) => {
 
 module.exports = {
     getLeave,
+    getLeaveManagers,
+    getLeaveDetail,
     createLeave,
     approvalLeave
 }

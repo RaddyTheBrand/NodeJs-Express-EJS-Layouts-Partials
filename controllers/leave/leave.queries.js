@@ -1,15 +1,28 @@
 const getLeaveQuery = `
     SELECT
-        id,
-        document_number,
-        employee_nik,
-        TO_CHAR(start_date, 'dd/mm/yyyy') as start_date,
-        TO_CHAR(end_date, 'dd/mm/yyyy') as end_date,
-        type,
-        status
-    FROM leave where employee_nik = ANY ($1) order by start_date desc
+        l.id,
+        l.document_number,
+        l.employee_nik,
+        e.name,
+        TO_CHAR(l.start_date, 'dd/mm/yyyy') as start_date,
+        TO_CHAR(l.end_date, 'dd/mm/yyyy') as end_date,
+        initcap(l.type) as type,
+        initcap(l.status) as status
+    FROM leave l join employee e on l.employee_nik = e.nik where l.employee_nik = ANY ($1)
 `
 
+const getLeaveDetailQuery = `
+    SELECT
+        l.id,
+        l.document_number,
+        l.employee_nik,
+        e.name,
+        TO_CHAR(l.start_date, 'dd/mm/yyyy') as start_date,
+        TO_CHAR(l.end_date, 'dd/mm/yyyy') as end_date,
+        initcap(l.type) as type,
+        initcap(l.status) as status
+    FROM leave l join employee e on l.employee_nik = e.nik where l.id = $1
+`
 
 const createLeaveQuery = `
     INSERT into leave 
@@ -25,6 +38,7 @@ const updateLeaveQuery = `
 
 module.exports = {
     getLeaveQuery,
+    getLeaveDetailQuery,
     createLeaveQuery,
     updateLeaveQuery
 }
