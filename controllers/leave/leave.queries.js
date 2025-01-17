@@ -27,9 +27,9 @@ const getLeaveDetailQuery = `
 
 const createLeaveQuery = `
     INSERT into leave 
-    (employee_nik, start_date, end_date, type, status)
+    (employee_nik, start_date, end_date, type, status, notes)
     VALUES
-    ($1, $2, $3, $4, $5)
+    ($1, $2, $3, $4, $5, $6)
     returning id
 `
 

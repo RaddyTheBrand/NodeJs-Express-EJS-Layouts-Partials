@@ -90,7 +90,7 @@ const createLeave = async (req, res) => {
         const startDate = req.body.startDate
         const endDate = req.body.endDate
         const leaveType = req.body.leaveType
-
+        const notes = req.body.notes
 
         if(startDate && endDate){
             const isValidStartDate = new Date(startDate)
@@ -102,7 +102,7 @@ const createLeave = async (req, res) => {
             throw 'Invalid leave type'
         }
         
-        const isLeaveExist = await pool.query('select id from leave where start_date <= $1 and end_date >= $2 and nik = $3', [endDate, startDate])
+        const isLeaveExist = await pool.query('select id from leave where start_date <= $1 and end_date >= $2 and employee_nik = $3', [endDate, startDate, req.nik])
         
         if (isLeaveExist.rowCount > 0) {
             throw 'Ada dokumen ijin yang overlap'
@@ -112,7 +112,7 @@ const createLeave = async (req, res) => {
 
         const nik = req.nik
 
-        const leaveId = await pool.query(createLeaveQuery, [nik, startDate, endDate, leaveType, 'waiting'])
+        const leaveId = await pool.query(createLeaveQuery, [nik, startDate, endDate, leaveType, 'waiting', notes])
 
         const documentNumber = `IJIN/${currentTime.getFullYear()}/${leaveId.rows[0].id}`
 
